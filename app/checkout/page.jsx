@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
-export default function CheckoutPage() {
+function CheckoutForm() {
   const { items, subtotal, clearCart } = useCart();
   const { data: session } = useSession();
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function CheckoutPage() {
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d && setDiscount(d.discount));
-  }, []);
+  }, [couponCode, subtotal]);
 
   async function handlePlaceOrder(e) {
     e.preventDefault();
@@ -117,5 +117,13 @@ export default function CheckoutPage() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-2xl px-6 py-14 text-center text-ink/60">Loading checkout...</div>}>
+      <CheckoutForm />
+    </Suspense>
   );
 }
