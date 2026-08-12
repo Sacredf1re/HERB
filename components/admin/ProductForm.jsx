@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { categories } from "@/lib/categories";
 
 function slugify(str) {
   return str
@@ -22,7 +23,7 @@ export default function ProductForm({ product }) {
     description: product?.description || "",
     ingredients: product?.ingredients || "",
     price: product ? (product.price / 100).toString() : "",
-    category: product?.category || "Herbal Tea",
+    category: product?.category || "Skincare",
     images: product?.images?.join(", ") || "",
     stock: product?.stock?.toString() || "100",
     active: product?.active ?? true
@@ -61,27 +62,25 @@ export default function ProductForm({ product }) {
     setSaving(false);
 
     if (!res.ok) {
-      setError(data.error || "Something went wrong.");
+      setError(data.error || "Algo deu errado.");
       return;
     }
     router.push("/admin/products");
     router.refresh();
   }
 
-  const categories = ["Herbal Tea", "Tincture", "Salve & Balm", "Essential Oil", "Body Oil"];
-
   return (
     <form onSubmit={handleSubmit} className="card p-6 space-y-4 max-w-2xl">
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <label className="eyebrow block mb-2">Name</label>
+          <label className="eyebrow block mb-2">Nome</label>
           <input required className="input" value={form.name} onChange={(e) => set("name", e.target.value)} />
         </div>
         <div>
           <label className="eyebrow block mb-2">Slug (URL)</label>
           <input
             className="input"
-            placeholder={slugify(form.name) || "auto-generated"}
+            placeholder={slugify(form.name) || "gerado automaticamente"}
             value={form.slug}
             onChange={(e) => set("slug", e.target.value)}
           />
@@ -89,41 +88,41 @@ export default function ProductForm({ product }) {
       </div>
 
       <div>
-        <label className="eyebrow block mb-2">Tagline</label>
+        <label className="eyebrow block mb-2">Frase de efeito</label>
         <input className="input" value={form.tagline} onChange={(e) => set("tagline", e.target.value)} />
       </div>
 
       <div>
-        <label className="eyebrow block mb-2">Description</label>
+        <label className="eyebrow block mb-2">Descrição</label>
         <textarea required rows={4} className="input" value={form.description} onChange={(e) => set("description", e.target.value)} />
       </div>
 
       <div>
-        <label className="eyebrow block mb-2">Ingredients</label>
+        <label className="eyebrow block mb-2">Ingredientes</label>
         <input className="input" value={form.ingredients} onChange={(e) => set("ingredients", e.target.value)} />
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
         <div>
-          <label className="eyebrow block mb-2">Price (USD)</label>
+          <label className="eyebrow block mb-2">Preço (R$)</label>
           <input required type="number" step="0.01" min="0" className="input" value={form.price} onChange={(e) => set("price", e.target.value)} />
         </div>
         <div>
-          <label className="eyebrow block mb-2">Stock</label>
+          <label className="eyebrow block mb-2">Estoque</label>
           <input type="number" min="0" className="input" value={form.stock} onChange={(e) => set("stock", e.target.value)} />
         </div>
         <div>
-          <label className="eyebrow block mb-2">Category</label>
+          <label className="eyebrow block mb-2">Categoria</label>
           <select className="input" value={form.category} onChange={(e) => set("category", e.target.value)}>
             {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c.value} value={c.value}>{c.label}</option>
             ))}
           </select>
         </div>
       </div>
 
       <div>
-        <label className="eyebrow block mb-2">Image URLs (comma separated)</label>
+        <label className="eyebrow block mb-2">URLs das imagens (separadas por vírgula)</label>
         <input
           className="input"
           placeholder="https://... , https://..."
@@ -131,21 +130,21 @@ export default function ProductForm({ product }) {
           onChange={(e) => set("images", e.target.value)}
         />
         <p className="text-xs text-ink/40 mt-1">
-          Paste in image links for now — file uploads can be added later with cloud storage.
+          Cole os links das imagens por enquanto — upload de arquivos pode ser adicionado depois com armazenamento em nuvem.
         </p>
       </div>
 
       {isEdit && (
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={form.active} onChange={(e) => set("active", e.target.checked)} />
-          Visible in the shop
+          Visível na loja
         </label>
       )}
 
       {error && <p className="text-sm text-clay-dark">{error}</p>}
 
       <button type="submit" disabled={saving} className="btn-primary">
-        {saving ? "Saving…" : isEdit ? "Save changes" : "Create product"}
+        {saving ? "Salvando…" : isEdit ? "Salvar alterações" : "Criar produto"}
       </button>
     </form>
   );

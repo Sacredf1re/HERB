@@ -8,10 +8,10 @@ export default async function AdminLayout({ children }) {
   if (session?.user?.role !== "ADMIN") redirect("/login");
 
   const links = [
-    { href: "/admin", label: "Dashboard" },
-    { href: "/admin/products", label: "Products" },
-    { href: "/admin/coupons", label: "Coupons" },
-    { href: "/admin/reviews", label: "Reviews" }
+    { href: "/admin", label: "Painel" },
+    { href: "/admin/products", label: "Produtos" },
+    { href: "/admin/coupons", label: "Cupons" },
+    { href: "/admin/reviews", label: "Avaliações" }
   ];
 
   return (

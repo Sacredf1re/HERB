@@ -3,6 +3,12 @@ import { formatPrice } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
+const statusLabels = {
+  PENDING_PAYMENT: "pagamento pendente",
+  PAID: "pago",
+  CANCELLED: "cancelado"
+};
+
 export default async function AdminDashboard() {
   const [productCount, reviewCount, couponCount, orders] = await Promise.all([
     prisma.product.count(),
@@ -12,14 +18,14 @@ export default async function AdminDashboard() {
   ]);
 
   const stats = [
-    { label: "Products", value: productCount },
-    { label: "Reviews", value: reviewCount },
-    { label: "Active coupons", value: couponCount }
+    { label: "Produtos", value: productCount },
+    { label: "Avaliações", value: reviewCount },
+    { label: "Cupons ativos", value: couponCount }
   ];
 
   return (
     <div>
-      <h1 className="text-3xl mb-8">Dashboard</h1>
+      <h1 className="text-3xl mb-8">Painel</h1>
       <div className="grid grid-cols-3 gap-4 mb-10">
         {stats.map((s) => (
           <div key={s.label} className="card p-5">
@@ -29,16 +35,16 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      <h2 className="text-xl mb-4">Recent orders</h2>
+      <h2 className="text-xl mb-4">Pedidos recentes</h2>
       {orders.length === 0 ? (
-        <p className="text-ink/60">No orders yet.</p>
+        <p className="text-ink/60">Nenhum pedido ainda.</p>
       ) : (
         <div className="space-y-2">
           {orders.map((o) => (
             <div key={o.id} className="card p-4 flex justify-between text-sm">
               <span className="font-mono">{o.id}</span>
               <span>{o.email}</span>
-              <span className="tag-chip">{o.status.replace("_", " ").toLowerCase()}</span>
+              <span className="tag-chip">{statusLabels[o.status] || o.status}</span>
               <span>{formatPrice(o.total)}</span>
             </div>
           ))}

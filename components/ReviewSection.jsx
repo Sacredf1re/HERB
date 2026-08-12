@@ -18,7 +18,7 @@ export default function ReviewSection({ productId, initialReviews }) {
     e.preventDefault();
     setError("");
     if (!comment.trim()) {
-      setError("Add a few words about the product.");
+      setError("Escreva algumas palavras sobre o produto.");
       return;
     }
     setSubmitting(true);
@@ -30,7 +30,7 @@ export default function ReviewSection({ productId, initialReviews }) {
     const data = await res.json();
     setSubmitting(false);
     if (!res.ok) {
-      setError(data.error || "Something went wrong.");
+      setError(data.error || "Algo deu errado.");
       return;
     }
     setReviews((prev) => [{ ...data, authorName: session.user.name }, ...prev]);
@@ -41,7 +41,7 @@ export default function ReviewSection({ productId, initialReviews }) {
   return (
     <div>
       <div className="space-y-6 mb-10">
-        {reviews.length === 0 && <p className="text-ink/60">No reviews yet — be the first.</p>}
+        {reviews.length === 0 && <p className="text-ink/60">Ainda não há avaliações — seja o primeiro.</p>}
         {reviews.map((r) => (
           <div key={r.id} className="border-b border-sage-light/60 pb-5">
             <div className="flex items-center justify-between">
@@ -49,14 +49,14 @@ export default function ReviewSection({ productId, initialReviews }) {
               <StarRating value={r.rating} />
             </div>
             <p className="text-ink/70 mt-1">{r.comment}</p>
-            {r.edited && <span className="text-xs text-ink/40 italic">edited</span>}
+            {r.edited && <span className="text-xs text-ink/40 italic">editado</span>}
           </div>
         ))}
       </div>
 
       {session ? (
         <form onSubmit={handleSubmit} className="card p-5">
-          <p className="eyebrow mb-3">Leave a review</p>
+          <p className="eyebrow mb-3">Deixe uma avaliação</p>
           <div className="flex items-center gap-2 mb-3">
             {[1, 2, 3, 4, 5].map((n) => (
               <button
@@ -64,7 +64,7 @@ export default function ReviewSection({ productId, initialReviews }) {
                 key={n}
                 onClick={() => setRating(n)}
                 className={`text-xl ${n <= rating ? "text-clay" : "text-sage-light"}`}
-                aria-label={`${n} star`}
+                aria-label={`${n} estrela${n > 1 ? "s" : ""}`}
               >
                 ★
               </button>
@@ -73,18 +73,18 @@ export default function ReviewSection({ productId, initialReviews }) {
           <textarea
             className="input mb-3"
             rows={3}
-            placeholder="How did you like it?"
+            placeholder="O que você achou do produto?"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
           {error && <p className="text-sm text-clay-dark mb-3">{error}</p>}
           <button type="submit" disabled={submitting} className="btn-primary">
-            {submitting ? "Posting…" : "Post review"}
+            {submitting ? "Publicando…" : "Publicar avaliação"}
           </button>
         </form>
       ) : (
         <p className="text-ink/60">
-          <a href="/login" className="text-clay-dark hover:underline">Sign in</a> to leave a review.
+          <a href="/login" className="text-clay-dark hover:underline">Entre</a> para deixar uma avaliação.
         </p>
       )}
     </div>

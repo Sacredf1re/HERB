@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function AdminCouponsClient({ initialCoupons }) {
   const [coupons, setCoupons] = useState(initialCoupons);
@@ -30,7 +30,7 @@ export default function AdminCouponsClient({ initialCoupons }) {
     const data = await res.json();
     setSaving(false);
     if (!res.ok) {
-      setError(data.error || "Something went wrong.");
+      setError(data.error || "Algo deu errado.");
       return;
     }
     setForm({ code: "", type: "PERCENT", value: "", minSubtotal: "0", expiresAt: "" });
@@ -47,7 +47,7 @@ export default function AdminCouponsClient({ initialCoupons }) {
   }
 
   async function remove(coupon) {
-    if (!window.confirm(`Delete coupon ${coupon.code}?`)) return;
+    if (!window.confirm(`Excluir o cupom ${coupon.code}?`)) return;
     await fetch(`/api/coupons/${coupon.id}`, { method: "DELETE" });
     refresh();
   }
@@ -55,54 +55,54 @@ export default function AdminCouponsClient({ initialCoupons }) {
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div>
-        <h2 className="text-xl mb-4">Active &amp; past coupons</h2>
+        <h2 className="text-xl mb-4">Cupons ativos e passados</h2>
         <div className="space-y-2">
-          {coupons.length === 0 && <p className="text-ink/60">No coupons yet.</p>}
+          {coupons.length === 0 && <p className="text-ink/60">Nenhum cupom ainda.</p>}
           {coupons.map((c) => (
             <div key={c.id} className="card p-4 flex items-center gap-3">
               <span className="font-mono font-medium">{c.code}</span>
               <span className="text-sm text-ink/60">
-                {c.type === "PERCENT" ? `${c.value}% off` : `$${(c.value / 100).toFixed(2)} off`}
+                {c.type === "PERCENT" ? `${c.value}% de desconto` : `R$${(c.value / 100).toFixed(2)} de desconto`}
               </span>
               {c.minSubtotal > 0 && (
-                <span className="text-xs text-ink/40">min ${(c.minSubtotal / 100).toFixed(2)}</span>
+                <span className="text-xs text-ink/40">mín. R${(c.minSubtotal / 100).toFixed(2)}</span>
               )}
               <span className={`tag-chip ml-auto ${c.active ? "" : "opacity-50"}`}>
-                {c.active ? "active" : "off"}
+                {c.active ? "ativo" : "desativado"}
               </span>
               <button onClick={() => toggleActive(c)} className="text-sage-dark hover:underline text-sm">
-                {c.active ? "Turn off" : "Turn on"}
+                {c.active ? "Desativar" : "Ativar"}
               </button>
-              <button onClick={() => remove(c)} className="text-clay-dark hover:underline text-sm">Delete</button>
+              <button onClick={() => remove(c)} className="text-clay-dark hover:underline text-sm">Excluir</button>
             </div>
           ))}
         </div>
       </div>
 
       <div>
-        <h2 className="text-xl mb-4">New coupon</h2>
+        <h2 className="text-xl mb-4">Novo cupom</h2>
         <form onSubmit={handleCreate} className="card p-5 space-y-4">
           <div>
-            <label className="eyebrow block mb-2">Code</label>
+            <label className="eyebrow block mb-2">Código</label>
             <input
               required
               className="input"
-              placeholder="SPRING15"
+              placeholder="PRIMAVERA15"
               value={form.code}
               onChange={(e) => setForm({ ...form, code: e.target.value })}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="eyebrow block mb-2">Type</label>
+              <label className="eyebrow block mb-2">Tipo</label>
               <select className="input" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                <option value="PERCENT">Percent off</option>
-                <option value="FIXED">Fixed $ off</option>
+                <option value="PERCENT">Desconto percentual</option>
+                <option value="FIXED">Desconto fixo (R$)</option>
               </select>
             </div>
             <div>
               <label className="eyebrow block mb-2">
-                {form.type === "PERCENT" ? "Percent (1-100)" : "Amount ($)"}
+                {form.type === "PERCENT" ? "Porcentagem (1-100)" : "Valor (R$)"}
               </label>
               <input
                 required
@@ -116,7 +116,7 @@ export default function AdminCouponsClient({ initialCoupons }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="eyebrow block mb-2">Minimum subtotal ($)</label>
+              <label className="eyebrow block mb-2">Subtotal mínimo (R$)</label>
               <input
                 type="number"
                 min="0"
@@ -126,7 +126,7 @@ export default function AdminCouponsClient({ initialCoupons }) {
               />
             </div>
             <div>
-              <label className="eyebrow block mb-2">Expires (optional)</label>
+              <label className="eyebrow block mb-2">Validade (opcional)</label>
               <input
                 type="date"
                 className="input"
@@ -137,7 +137,7 @@ export default function AdminCouponsClient({ initialCoupons }) {
           </div>
           {error && <p className="text-sm text-clay-dark">{error}</p>}
           <button type="submit" disabled={saving} className="btn-primary w-full">
-            {saving ? "Creating…" : "Create coupon"}
+            {saving ? "Criando…" : "Criar cupom"}
           </button>
         </form>
       </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/money";
+import { categoryLabels } from "@/lib/categories";
 
 export default function ProductCard({ product, avgRating }) {
   return (
@@ -16,7 +17,7 @@ export default function ProductCard({ product, avgRating }) {
           />
         </div>
         <div className="p-4">
-          <span className="tag-chip mb-2">{product.category}</span>
+          <span className="tag-chip mb-2">{categoryLabels[product.category] || product.category}</span>
           <h3 className="font-display text-lg text-sage-dark leading-snug mt-1">{product.name}</h3>
           {product.tagline && <p className="text-sm text-ink/60 mt-1">{product.tagline}</p>}
           <div className="flex items-center justify-between mt-3">

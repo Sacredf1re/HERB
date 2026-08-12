@@ -27,14 +27,14 @@ export default function AdminReviewsClient({ initialReviews }) {
   }
 
   async function remove(id) {
-    if (!window.confirm("Delete this review?")) return;
+    if (!window.confirm("Excluir essa avaliação?")) return;
     const res = await fetch(`/api/reviews/${id}`, { method: "DELETE" });
     if (res.ok) setReviews((prev) => prev.filter((r) => r.id !== id));
   }
 
   return (
     <div className="space-y-3">
-      {reviews.length === 0 && <p className="text-ink/60">No reviews yet.</p>}
+      {reviews.length === 0 && <p className="text-ink/60">Nenhuma avaliação ainda.</p>}
       {reviews.map((r) => (
         <div key={r.id} className="card p-4">
           {editingId === r.id ? (
@@ -63,8 +63,8 @@ export default function AdminReviewsClient({ initialReviews }) {
                 onChange={(e) => setDraft({ ...draft, comment: e.target.value })}
               />
               <div className="flex gap-3">
-                <button onClick={() => saveEdit(r.id)} className="btn-primary !px-4 !py-2">Save</button>
-                <button onClick={() => setEditingId(null)} className="btn-outline !px-4 !py-2">Cancel</button>
+                <button onClick={() => saveEdit(r.id)} className="btn-primary !px-4 !py-2">Salvar</button>
+                <button onClick={() => setEditingId(null)} className="btn-outline !px-4 !py-2">Cancelar</button>
               </div>
             </div>
           ) : (
@@ -72,15 +72,15 @@ export default function AdminReviewsClient({ initialReviews }) {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="font-medium text-sage-dark">{r.authorName}</span>
-                  <span className="text-xs text-ink/40 ml-2">on {r.product?.name}</span>
+                  <span className="text-xs text-ink/40 ml-2">em {r.product?.name}</span>
                 </div>
                 <StarRating value={r.rating} />
               </div>
               <p className="text-ink/70 mt-1">{r.comment}</p>
-              {r.edited && <span className="text-xs text-ink/40 italic">edited</span>}
+              {r.edited && <span className="text-xs text-ink/40 italic">editado</span>}
               <div className="flex gap-4 mt-2">
-                <button onClick={() => startEdit(r)} className="text-sage-dark hover:underline text-sm">Edit</button>
-                <button onClick={() => remove(r.id)} className="text-clay-dark hover:underline text-sm">Delete</button>
+                <button onClick={() => startEdit(r)} className="text-sage-dark hover:underline text-sm">Editar</button>
+                <button onClick={() => remove(r.id)} className="text-clay-dark hover:underline text-sm">Excluir</button>
               </div>
             </div>
           )}

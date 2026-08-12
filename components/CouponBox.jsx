@@ -19,7 +19,7 @@ export default function CouponBox({ subtotal, onApplied, applied }) {
     const data = await res.json();
     setChecking(false);
     if (!res.ok) {
-      setError(data.error || "Couldn't apply that code.");
+      setError(data.error || "Não foi possível aplicar esse código.");
       return;
     }
     onApplied(data);
@@ -28,8 +28,8 @@ export default function CouponBox({ subtotal, onApplied, applied }) {
   if (applied) {
     return (
       <div className="flex items-center justify-between text-sm text-sage-dark">
-        <span>Coupon <strong>{applied.code}</strong> applied</span>
-        <button onClick={() => onApplied(null)} className="text-clay-dark hover:underline">Remove</button>
+        <span>Cupom <strong>{applied.code}</strong> aplicado</span>
+        <button onClick={() => onApplied(null)} className="text-clay-dark hover:underline">Remover</button>
       </div>
     );
   }
@@ -39,12 +39,12 @@ export default function CouponBox({ subtotal, onApplied, applied }) {
       <form onSubmit={handleApply} className="flex gap-2">
         <input
           className="input"
-          placeholder="Coupon code"
+          placeholder="Cupom de desconto"
           value={code}
           onChange={(e) => setCode(e.target.value)}
         />
         <button className="btn-outline whitespace-nowrap" disabled={checking}>
-          {checking ? "Checking…" : "Apply"}
+          {checking ? "Verificando…" : "Aplicar"}
         </button>
       </form>
       {error && <p className="text-xs text-clay-dark mt-2">{error}</p>}

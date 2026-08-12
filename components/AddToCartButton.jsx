@@ -21,7 +21,7 @@ export default function AddToCartButton({ product }) {
           type="button"
           onClick={() => setQty((q) => Math.max(1, q - 1))}
           className="w-9 h-9 text-sage-dark"
-          aria-label="Decrease quantity"
+          aria-label="Diminuir quantidade"
         >
           −
         </button>
@@ -30,13 +30,13 @@ export default function AddToCartButton({ product }) {
           type="button"
           onClick={() => setQty((q) => q + 1)}
           className="w-9 h-9 text-sage-dark"
-          aria-label="Increase quantity"
+          aria-label="Aumentar quantidade"
         >
           +
         </button>
       </div>
       <button onClick={handleAdd} className="btn-primary flex-1">
-        {added ? "Added ✓" : "Add to cart"}
+        {added ? "Adicionado ✓" : "Adicionar ao carrinho"}
       </button>
     </div>
   );

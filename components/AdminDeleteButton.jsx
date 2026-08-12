@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function AdminDeleteButton({ url, confirmText = "Delete this?" }) {
+export default function AdminDeleteButton({ url, confirmText = "Excluir isso?" }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
@@ -17,7 +17,7 @@ export default function AdminDeleteButton({ url, confirmText = "Delete this?" })
 
   return (
     <button onClick={handleDelete} disabled={busy} className="text-clay-dark hover:underline text-sm">
-      {busy ? "Deleting…" : "Delete"}
+      {busy ? "Excluindo…" : "Excluir"}
     </button>
   );
 }

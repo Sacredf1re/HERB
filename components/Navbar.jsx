@@ -16,9 +16,11 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-ink/80">
-          <Link href="/products" className="hover:text-sage-dark">Shop</Link>
-          <Link href="/products?category=Herbal+Tea" className="hover:text-sage-dark">Teas</Link>
-          <Link href="/products?category=Tincture" className="hover:text-sage-dark">Tinctures</Link>
+          <Link href="/products" className="hover:text-sage-dark">Loja</Link>
+          <Link href="/products?category=Skincare" className="hover:text-sage-dark">Skincare</Link>
+          <Link href="/products?category=Sleep" className="hover:text-sage-dark">Sono</Link>
+          <Link href="/products?category=Hair" className="hover:text-sage-dark">Cabelo</Link>
+          <Link href="/products?category=Nutrition" className="hover:text-sage-dark">Nutrição</Link>
         </nav>
 
         <div className="flex items-center gap-5 text-sm">
@@ -27,16 +29,16 @@ export default function Navbar() {
           )}
           {session ? (
             <>
-              <Link href="/account" className="hover:text-sage-dark">{session.user.name?.split(" ")[0] || "Account"}</Link>
+              <Link href="/account" className="hover:text-sage-dark">{session.user.name?.split(" ")[0] || "Conta"}</Link>
               <button onClick={() => signOut({ callbackUrl: "/" })} className="text-ink/60 hover:text-ink">
-                Sign out
+                Sair
               </button>
             </>
           ) : (
-            <Link href="/login" className="hover:text-sage-dark">Sign in</Link>
+            <Link href="/login" className="hover:text-sage-dark">Entrar</Link>
           )}
           <Link href="/cart" className="relative">
-            <span className="btn-outline !px-4 !py-2">Cart{count > 0 ? ` (${count})` : ""}</span>
+            <span className="btn-outline !px-4 !py-2">Carrinho{count > 0 ? ` (${count})` : ""}</span>
           </Link>
         </div>
       </div>

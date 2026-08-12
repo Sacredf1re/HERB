@@ -11,7 +11,7 @@ export default async function AdminReviewsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl mb-8">Reviews</h1>
+      <h1 className="text-3xl mb-8">Avaliações</h1>
       <AdminReviewsClient initialReviews={reviews} />
     </div>
   );
