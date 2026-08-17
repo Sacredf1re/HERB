@@ -1,20 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function CouponBox({ subtotal, onApplied, applied }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
+  const [available, setAvailable] = useState([]);
 
-  async function handleApply(e) {
-    e.preventDefault();
+  useEffect(() => {
+    fetch("/api/coupons/active")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setAvailable)
+      .catch(() => setAvailable([]));
+  }, []);
+
+  async function applyCode(rawCode) {
     setError("");
     setChecking(true);
     const res = await fetch("/api/coupons/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, subtotal })
+      body: JSON.stringify({ code: rawCode, subtotal })
     });
     const data = await res.json();
     setChecking(false);
@@ -23,6 +30,11 @@ export default function CouponBox({ subtotal, onApplied, applied }) {
       return;
     }
     onApplied(data);
+  }
+
+  function handleApply(e) {
+    e.preventDefault();
+    applyCode(code);
   }
 
   if (applied) {
@@ -48,6 +60,27 @@ export default function CouponBox({ subtotal, onApplied, applied }) {
         </button>
       </form>
       {error && <p className="text-xs text-clay-dark mt-2">{error}</p>}
+
+      {available.length > 0 && (
+        <div className="mt-3">
+          <p className="text-xs text-ink/40 mb-1.5">Cupons disponíveis:</p>
+          <div className="flex flex-wrap gap-1.5">
+            {available.map((c) => (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => {
+                  setCode(c.code);
+                  applyCode(c.code);
+                }}
+                className="tag-chip hover:bg-sage hover:text-cream transition-colors"
+              >
+                {c.code} · {c.type === "PERCENT" ? `${c.value}%` : `R$${(c.value / 100).toFixed(0)}`}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
