@@ -23,7 +23,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "Entre na sua conta para avaliar." }, { status: 401 });
   }
 
-  const { productId, rating, comment, authorName } = await req.json();
+  const { productId, rating, comment, authorName, count } = await req.json();
   if (!productId || !rating || !comment) {
     return NextResponse.json({ error: "Nota e comentário são obrigatórios." }, { status: 400 });
   }
@@ -38,6 +38,23 @@ export async function POST(req) {
   // Admins may set a custom author name (e.g. adding a testimonial on the store's behalf).
   const finalAuthorName =
     session.user.role === "ADMIN" && authorName ? authorName : session.user.name || "Anônimo";
+
+  // Admins can also create several reviews at once — same star rating and comment,
+  // used to quickly add review volume (e.g. "5 stars, 12 reviews") without typing each one.
+  const quantity =
+    session.user.role === "ADMIN" && count ? Math.max(1, Math.min(200, Number(count))) : 1;
+
+  if (quantity > 1) {
+    const data = Array.from({ length: quantity }, (_, i) => ({
+      productId,
+      userId: session.user.id,
+      authorName: `${finalAuthorName} ${i + 1}`,
+      rating: numericRating,
+      comment
+    }));
+    await prisma.review.createMany({ data });
+    return NextResponse.json({ created: quantity }, { status: 201 });
+  }
 
   const review = await prisma.review.create({
     data: {
