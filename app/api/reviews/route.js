@@ -23,7 +23,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "Entre na sua conta para avaliar." }, { status: 401 });
   }
 
-  const { productId, rating, comment } = await req.json();
+  const { productId, rating, comment, authorName } = await req.json();
   if (!productId || !rating || !comment) {
     return NextResponse.json({ error: "Nota e comentário são obrigatórios." }, { status: 400 });
   }
@@ -35,11 +35,15 @@ export async function POST(req) {
   const product = await prisma.product.findUnique({ where: { id: productId } });
   if (!product) return NextResponse.json({ error: "Produto não encontrado." }, { status: 404 });
 
+  // Admins may set a custom author name (e.g. adding a testimonial on the store's behalf).
+  const finalAuthorName =
+    session.user.role === "ADMIN" && authorName ? authorName : session.user.name || "Anônimo";
+
   const review = await prisma.review.create({
     data: {
       productId,
       userId: session.user.id,
-      authorName: session.user.name || "Anonymous",
+      authorName: finalAuthorName,
       rating: numericRating,
       comment
     }
