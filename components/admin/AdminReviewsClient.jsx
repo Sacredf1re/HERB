@@ -13,10 +13,16 @@ export default function AdminReviewsClient({ initialReviews, products }) {
     productId: products[0]?.id || "",
     authorName: "",
     rating: 5,
-    comment: ""
+    comment: "",
+    count: "1"
   });
   const [newError, setNewError] = useState("");
   const [creating, setCreating] = useState(false);
+
+  async function refresh() {
+    const res = await fetch("/api/reviews");
+    if (res.ok) setReviews(await res.json());
+  }
 
   function startEdit(review) {
     setEditingId(review.id);
@@ -53,7 +59,7 @@ export default function AdminReviewsClient({ initialReviews, products }) {
     const res = await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newReview)
+      body: JSON.stringify({ ...newReview, count: Number(newReview.count) || 1 })
     });
     const data = await res.json();
     setCreating(false);
@@ -61,10 +67,9 @@ export default function AdminReviewsClient({ initialReviews, products }) {
       setNewError(data.error || "Algo deu errado.");
       return;
     }
-    const product = products.find((p) => p.id === newReview.productId);
-    setReviews((prev) => [{ ...data, product: { name: product?.name } }, ...prev]);
-    setNewReview({ productId: products[0]?.id || "", authorName: "", rating: 5, comment: "" });
+    setNewReview({ productId: products[0]?.id || "", authorName: "", rating: 5, comment: "", count: "1" });
     setShowNew(false);
+    refresh();
   }
 
   return (
@@ -101,19 +106,39 @@ export default function AdminReviewsClient({ initialReviews, products }) {
               />
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="eyebrow">Nota</span>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <button
-                type="button"
-                key={n}
-                onClick={() => setNewReview({ ...newReview, rating: n })}
-                className={`text-lg ${n <= newReview.rating ? "text-clay" : "text-sage-light"}`}
-              >
-                ★
-              </button>
-            ))}
+
+          <div className="grid md:grid-cols-2 gap-4 items-end">
+            <div>
+              <label className="eyebrow block mb-2">Nota (estrelas)</label>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    type="button"
+                    key={n}
+                    onClick={() => setNewReview({ ...newReview, rating: n })}
+                    className={`text-xl ${n <= newReview.rating ? "text-clay" : "text-sage-light"}`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="eyebrow block mb-2">Quantidade de avaliações</label>
+              <input
+                type="number"
+                min="1"
+                max="200"
+                className="input"
+                value={newReview.count}
+                onChange={(e) => setNewReview({ ...newReview, count: e.target.value })}
+              />
+              <p className="text-xs text-ink/40 mt-1">
+                Cria várias avaliações de uma vez, todas com essa nota e comentário.
+              </p>
+            </div>
           </div>
+
           <textarea
             className="input"
             rows={3}
@@ -123,7 +148,7 @@ export default function AdminReviewsClient({ initialReviews, products }) {
           />
           {newError && <p className="text-sm text-clay-dark">{newError}</p>}
           <button type="submit" disabled={creating} className="btn-primary">
-            {creating ? "Criando…" : "Criar avaliação"}
+            {creating ? "Criando…" : Number(newReview.count) > 1 ? `Criar ${newReview.count} avaliações` : "Criar avaliação"}
           </button>
         </form>
       )}
