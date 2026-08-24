@@ -14,14 +14,14 @@
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center rounded-full bg-clay px-6 py-3 text-cream
-           font-body text-sm tracking-wide transition-colors hover:bg-clay-dark disabled:opacity-50;
+           font-body text-sm tracking-wide shadow-sm transition-all hover:bg-clay-dark hover:shadow-md disabled:opacity-50;
   }
   .btn-outline {
     @apply inline-flex items-center justify-center rounded-full border border-sage px-6 py-3
            text-sage font-body text-sm tracking-wide transition-colors hover:bg-sage hover:text-cream;
   }
   .card {
-    @apply bg-paper rounded-2xl border border-sage-light/70 shadow-sm;
+    @apply bg-paper rounded-2xl border border-sage-light/70 shadow-sm transition-shadow;
   }
   .input {
     @apply w-full rounded-lg border border-sage-light bg-cream px-4 py-2.5 text-ink
@@ -31,6 +31,9 @@
     @apply inline-block rounded-full bg-sage-light px-3 py-1 text-xs text-sage-dark;
   }
   .eyebrow {
-    @apply text-xs uppercase tracking-[0.2em] text-clay-dark font-body;
+    @apply text-xs uppercase tracking-[0.22em] text-clay-dark font-body;
+  }
+  .price-tag {
+    @apply text-gold-dark font-display;
   }
 }

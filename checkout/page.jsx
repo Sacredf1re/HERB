@@ -19,6 +19,8 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("PENDING");
+  const [cryptoFields, setCryptoFields] = useState([]);
 
   useEffect(() => {
     if (!couponCode) return;
@@ -30,6 +32,13 @@ export default function CheckoutPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d && setDiscount(d.discount));
   }, []);
+
+  useEffect(() => {
+    if (paymentMethod !== "CRYPTO" || cryptoFields.length) return;
+    fetch("/api/crypto-fields")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCryptoFields);
+  }, [paymentMethod]);
 
   async function handlePlaceOrder(e) {
     e.preventDefault();
@@ -45,7 +54,8 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         couponCode,
-        email
+        email,
+        paymentMethod
       })
     });
     const data = await res.json();
@@ -71,9 +81,8 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-2xl px-6 py-14">
       <h1 className="text-4xl mb-2">Finalizar compra</h1>
       <p className="text-ink/60 mb-8">
-        Ainda não conectamos um meio de pagamento — ao finalizar, o pedido fica
-        registrado como <strong>pagamento pendente</strong>, para que Stripe, PayPal
-        ou outro provedor possa ser conectado depois sem mudar esse fluxo.
+        Ainda não conectamos um gateway tradicional — ao finalizar, o pedido fica
+        registrado como <strong>pagamento pendente</strong> até ser confirmado.
       </p>
 
       <form onSubmit={handlePlaceOrder} className="card p-6 space-y-5">
@@ -90,6 +99,49 @@ export default function CheckoutPage() {
             />
           </div>
         )}
+
+        <div>
+          <label className="eyebrow block mb-2">Forma de pagamento</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("PENDING")}
+              className={`px-4 py-2 rounded-full text-sm ${
+                paymentMethod === "PENDING" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+              }`}
+            >
+              A combinar
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("CRYPTO")}
+              className={`px-4 py-2 rounded-full text-sm ${
+                paymentMethod === "CRYPTO" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+              }`}
+            >
+              Crypto
+            </button>
+          </div>
+
+          {paymentMethod === "CRYPTO" && (
+            <div className="mt-4 card p-4 bg-sage-light/40 space-y-2">
+              <p className="text-sm text-sage-dark font-medium">Envie o pagamento para:</p>
+              {cryptoFields.length === 0 ? (
+                <p className="text-sm text-ink/50">Nenhuma informação de pagamento cadastrada ainda.</p>
+              ) : (
+                cryptoFields.map((f) => (
+                  <div key={f.id} className="text-sm">
+                    <span className="text-ink/60">{f.label}: </span>
+                    <span className="font-mono break-all">{f.value}</span>
+                  </div>
+                ))
+              )}
+              <p className="text-xs text-ink/50 pt-2">
+                Depois de enviar, seu pedido fica pendente até confirmarmos o recebimento.
+              </p>
+            </div>
+          )}
+        </div>
 
         <div className="border-t border-sage-light/70 pt-4 space-y-1 text-sm">
           {items.map((i) => (
