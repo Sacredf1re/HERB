@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
-  const { items, couponCode, email } = await req.json();
+  const { items, couponCode, email, paymentMethod } = await req.json();
 
   if (!items?.length) {
     return NextResponse.json({ error: "Seu carrinho está vazio." }, { status: 400 });
@@ -15,7 +15,6 @@ export async function POST(req) {
     return NextResponse.json({ error: "É necessário informar um e-mail." }, { status: 400 });
   }
 
-  // Re-price everything from the database so the client can't tamper with totals.
   const productIds = items.map((i) => i.productId);
   const products = await prisma.product.findMany({ where: { id: { in: productIds } } });
   const productMap = Object.fromEntries(products.map((p) => [p.id, p]));
@@ -58,7 +57,8 @@ export async function POST(req) {
       discount,
       total,
       couponId,
-      status: "PENDING_PAYMENT", // no payment gateway wired up yet
+      status: "PENDING_PAYMENT",
+      paymentMethod: paymentMethod === "CRYPTO" ? "CRYPTO" : "PENDING",
       items: { create: orderItemsData }
     },
     include: { items: true }

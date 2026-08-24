@@ -11,24 +11,18 @@ async function requireAdmin() {
 export async function PATCH(req, { params }) {
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Apenas administradores." }, { status: 403 });
-
-  const body = await req.json();
+  const { label, value, order } = await req.json();
   const data = {};
-  for (const key of ["type", "active"]) {
-    if (body[key] !== undefined) data[key] = body[key];
-  }
-  if (body.code !== undefined) data.code = body.code.toUpperCase().trim();
-  if (body.value !== undefined) data.value = Number(body.value);
-  if (body.minSubtotal !== undefined) data.minSubtotal = Number(body.minSubtotal);
-  if (body.expiresAt !== undefined) data.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
-
-  const coupon = await prisma.coupon.update({ where: { id: params.id }, data });
-  return NextResponse.json(coupon);
+  if (label !== undefined) data.label = label;
+  if (value !== undefined) data.value = value;
+  if (order !== undefined) data.order = Number(order);
+  const field = await prisma.cryptoPaymentField.update({ where: { id: params.id }, data });
+  return NextResponse.json(field);
 }
 
 export async function DELETE(_req, { params }) {
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Apenas administradores." }, { status: 403 });
-  await prisma.coupon.delete({ where: { id: params.id } });
+  await prisma.cryptoPaymentField.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }
