@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import StarRating from "@/components/StarRating";
 
-export default function ReviewSection({ productId, initialReviews }) {
-  const { data: session } = useSession();
+export default function ReviewSection({ productId, initialReviews, isSignedIn, canReview }) {
   const router = useRouter();
   const [reviews, setReviews] = useState(initialReviews);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const visibleReviews = reviews.filter((r) => r.comment);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -33,7 +33,6 @@ export default function ReviewSection({ productId, initialReviews }) {
       setError(data.error || "Algo deu errado.");
       return;
     }
-    setReviews((prev) => [{ ...data, authorName: session.user.name }, ...prev]);
     setComment("");
     router.refresh();
   }
@@ -41,8 +40,8 @@ export default function ReviewSection({ productId, initialReviews }) {
   return (
     <div>
       <div className="space-y-6 mb-10">
-        {reviews.length === 0 && <p className="text-ink/60">Ainda não há avaliações — seja o primeiro.</p>}
-        {reviews.map((r) => (
+        {visibleReviews.length === 0 && <p className="text-ink/60">Ainda não há avaliações — seja o primeiro.</p>}
+        {visibleReviews.map((r) => (
           <div key={r.id} className="border-b border-sage-light/60 pb-5">
             <div className="flex items-center justify-between">
               <span className="font-medium text-sage-dark">{r.authorName}</span>
@@ -54,7 +53,19 @@ export default function ReviewSection({ productId, initialReviews }) {
         ))}
       </div>
 
-      {session ? (
+      {!isSignedIn && (
+        <p className="text-ink/60">
+          <a href="/login" className="text-clay-dark hover:underline">Entre</a> para deixar uma avaliação.
+        </p>
+      )}
+
+      {isSignedIn && !canReview && (
+        <p className="text-ink/60 card p-4">
+          Avaliações ficam disponíveis depois que a compra deste produto é confirmada como paga.
+        </p>
+      )}
+
+      {isSignedIn && canReview && (
         <form onSubmit={handleSubmit} className="card p-5">
           <p className="eyebrow mb-3">Deixe uma avaliação</p>
           <div className="flex items-center gap-2 mb-3">
@@ -82,10 +93,6 @@ export default function ReviewSection({ productId, initialReviews }) {
             {submitting ? "Publicando…" : "Publicar avaliação"}
           </button>
         </form>
-      ) : (
-        <p className="text-ink/60">
-          <a href="/login" className="text-clay-dark hover:underline">Entre</a> para deixar uma avaliação.
-        </p>
       )}
     </div>
   );

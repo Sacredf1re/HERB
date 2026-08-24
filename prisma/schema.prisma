@@ -41,7 +41,7 @@ model Product {
   tagline     String?
   description String
   ingredients String?
-  price       Int // cents
+  price       Int
   category    String
   images      String[]
   stock       Int       @default(100)
@@ -58,9 +58,9 @@ model Review {
   productId  String
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId     String?
-  authorName String
+  authorName String?
   rating     Int
-  comment    String
+  comment    String?
   edited     Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -70,7 +70,7 @@ model Coupon {
   id          String     @id @default(cuid())
   code        String     @unique
   type        CouponType
-  value       Int // percent (1-100) or cents off, depending on type
+  value       Int
   minSubtotal Int        @default(0)
   active      Boolean    @default(true)
   expiresAt   DateTime?
@@ -79,18 +79,19 @@ model Coupon {
 }
 
 model Order {
-  id         String      @id @default(cuid())
-  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId     String?
-  email      String
-  items      OrderItem[]
-  subtotal   Int
-  discount   Int         @default(0)
-  total      Int
-  coupon     Coupon?     @relation(fields: [couponId], references: [id])
-  couponId   String?
-  status     OrderStatus @default(PENDING_PAYMENT)
-  createdAt  DateTime    @default(now())
+  id            String      @id @default(cuid())
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId        String?
+  email         String
+  items         OrderItem[]
+  subtotal      Int
+  discount      Int         @default(0)
+  total         Int
+  coupon        Coupon?     @relation(fields: [couponId], references: [id])
+  couponId      String?
+  status        OrderStatus @default(PENDING_PAYMENT)
+  paymentMethod String      @default("PENDING")
+  createdAt     DateTime    @default(now())
 }
 
 model OrderItem {
@@ -102,4 +103,14 @@ model OrderItem {
   name      String
   price     Int
   qty       Int
+}
+
+// Admin-configurable fields shown to customers at checkout when they choose Crypto —
+// e.g. label: "Endereço BTC", value: "bc1q...", or label: "Link da carteira", value: "https://..."
+model CryptoPaymentField {
+  id        String   @id @default(cuid())
+  label     String
+  value     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
 }

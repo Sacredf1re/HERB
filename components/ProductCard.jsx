@@ -21,7 +21,7 @@ export default function ProductCard({ product, avgRating }) {
           <h3 className="font-display text-lg text-sage-dark leading-snug mt-1">{product.name}</h3>
           {product.tagline && <p className="text-sm text-ink/60 mt-1">{product.tagline}</p>}
           <div className="flex items-center justify-between mt-3">
-            <span className="font-body text-ink">{formatPrice(product.price)}</span>
+            <span className="font-body text-ink price-tag">{formatPrice(product.price)}</span>
             {avgRating ? <span className="text-xs text-clay">★ {avgRating.toFixed(1)}</span> : null}
           </div>
         </div>

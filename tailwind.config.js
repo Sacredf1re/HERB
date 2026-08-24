@@ -19,6 +19,10 @@ module.exports = {
           DEFAULT: "#C17F5C",
           dark: "#A6633F"
         },
+        gold: {
+          DEFAULT: "#B8935F",
+          dark: "#96754A"
+        },
         rose: "#D9A9A6",
         ink: "#2B2A25"
       },

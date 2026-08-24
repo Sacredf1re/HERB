@@ -10,7 +10,9 @@ export default async function AdminLayout({ children }) {
   const links = [
     { href: "/admin", label: "Painel" },
     { href: "/admin/products", label: "Produtos" },
+    { href: "/admin/orders", label: "Pedidos" },
     { href: "/admin/coupons", label: "Cupons" },
+    { href: "/admin/payments", label: "Pagamentos" },
     { href: "/admin/reviews", label: "Avaliações" }
   ];
 

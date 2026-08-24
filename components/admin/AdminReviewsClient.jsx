@@ -9,6 +9,7 @@ export default function AdminReviewsClient({ initialReviews, products }) {
   const [draft, setDraft] = useState({ rating: 5, comment: "", authorName: "" });
 
   const [showNew, setShowNew] = useState(false);
+  const [mode, setMode] = useState("full"); // "full" | "starsOnly"
   const [newReview, setNewReview] = useState({
     productId: products[0]?.id || "",
     authorName: "",
@@ -26,7 +27,11 @@ export default function AdminReviewsClient({ initialReviews, products }) {
 
   function startEdit(review) {
     setEditingId(review.id);
-    setDraft({ rating: review.rating, comment: review.comment, authorName: review.authorName });
+    setDraft({
+      rating: review.rating,
+      comment: review.comment || "",
+      authorName: review.authorName || ""
+    });
   }
 
   async function saveEdit(id) {
@@ -51,15 +56,28 @@ export default function AdminReviewsClient({ initialReviews, products }) {
   async function handleCreate(e) {
     e.preventDefault();
     setNewError("");
-    if (!newReview.productId || !newReview.authorName.trim() || !newReview.comment.trim()) {
-      setNewError("Preencha produto, nome e comentário.");
+
+    if (!newReview.productId) {
+      setNewError("Escolha um produto.");
       return;
     }
+    if (mode === "full" && (!newReview.authorName.trim() || !newReview.comment.trim())) {
+      setNewError('Preencha nome e comentário, ou mude para "Somente estrelas".');
+      return;
+    }
+
     setCreating(true);
     const res = await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...newReview, count: Number(newReview.count) || 1 })
+      body: JSON.stringify({
+        productId: newReview.productId,
+        rating: newReview.rating,
+        count: Number(newReview.count) || 1,
+        ...(mode === "full"
+          ? { authorName: newReview.authorName, comment: newReview.comment }
+          : {})
+      })
     });
     const data = await res.json();
     setCreating(false);
@@ -83,19 +101,41 @@ export default function AdminReviewsClient({ initialReviews, products }) {
 
       {showNew && (
         <form onSubmit={handleCreate} className="card p-5 mb-6 space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="eyebrow block mb-2">Produto</label>
-              <select
-                className="input"
-                value={newReview.productId}
-                onChange={(e) => setNewReview({ ...newReview, productId: e.target.value })}
-              >
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
+          <div className="flex gap-2 border-b border-sage-light/70 pb-3">
+            <button
+              type="button"
+              onClick={() => setMode("full")}
+              className={`px-3 py-1.5 rounded-full text-sm ${
+                mode === "full" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+              }`}
+            >
+              Avaliação completa (nome + comentário)
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("starsOnly")}
+              className={`px-3 py-1.5 rounded-full text-sm ${
+                mode === "starsOnly" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+              }`}
+            >
+              Somente estrelas
+            </button>
+          </div>
+
+          <div>
+            <label className="eyebrow block mb-2">Produto</label>
+            <select
+              className="input"
+              value={newReview.productId}
+              onChange={(e) => setNewReview({ ...newReview, productId: e.target.value })}
+            >
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {mode === "full" && (
             <div>
               <label className="eyebrow block mb-2">Nome do autor</label>
               <input
@@ -105,7 +145,7 @@ export default function AdminReviewsClient({ initialReviews, products }) {
                 placeholder="Ex: Juliana M."
               />
             </div>
-          </div>
+          )}
 
           <div className="grid md:grid-cols-2 gap-4 items-end">
             <div>
@@ -124,7 +164,7 @@ export default function AdminReviewsClient({ initialReviews, products }) {
               </div>
             </div>
             <div>
-              <label className="eyebrow block mb-2">Quantidade de avaliações</label>
+              <label className="eyebrow block mb-2">Quantidade</label>
               <input
                 type="number"
                 min="1"
@@ -134,21 +174,30 @@ export default function AdminReviewsClient({ initialReviews, products }) {
                 onChange={(e) => setNewReview({ ...newReview, count: e.target.value })}
               />
               <p className="text-xs text-ink/40 mt-1">
-                Cria várias avaliações de uma vez, todas com essa nota e comentário.
+                {mode === "starsOnly"
+                  ? "Adiciona só a nota, sem nome nem comentário — não aparece como texto na loja, só entra na média."
+                  : "Cria várias cópias dessa avaliação (nome numerado)."}
               </p>
             </div>
           </div>
 
-          <textarea
-            className="input"
-            rows={3}
-            placeholder="Comentário da avaliação"
-            value={newReview.comment}
-            onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-          />
+          {mode === "full" && (
+            <textarea
+              className="input"
+              rows={3}
+              placeholder="Comentário da avaliação"
+              value={newReview.comment}
+              onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+            />
+          )}
+
           {newError && <p className="text-sm text-clay-dark">{newError}</p>}
           <button type="submit" disabled={creating} className="btn-primary">
-            {creating ? "Criando…" : Number(newReview.count) > 1 ? `Criar ${newReview.count} avaliações` : "Criar avaliação"}
+            {creating
+              ? "Criando…"
+              : Number(newReview.count) > 1
+              ? `Criar ${newReview.count} avaliações`
+              : "Criar avaliação"}
           </button>
         </form>
       )}
@@ -162,6 +211,7 @@ export default function AdminReviewsClient({ initialReviews, products }) {
                 <div className="flex items-center gap-2">
                   <input
                     className="input !w-40"
+                    placeholder="Nome (opcional)"
                     value={draft.authorName}
                     onChange={(e) => setDraft({ ...draft, authorName: e.target.value })}
                   />
@@ -179,6 +229,7 @@ export default function AdminReviewsClient({ initialReviews, products }) {
                 <textarea
                   className="input"
                   rows={2}
+                  placeholder="Comentário (opcional)"
                   value={draft.comment}
                   onChange={(e) => setDraft({ ...draft, comment: e.target.value })}
                 />
@@ -191,12 +242,14 @@ export default function AdminReviewsClient({ initialReviews, products }) {
               <div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-medium text-sage-dark">{r.authorName}</span>
+                    <span className="font-medium text-sage-dark">
+                      {r.authorName || <span className="italic text-ink/40">somente estrelas</span>}
+                    </span>
                     <span className="text-xs text-ink/40 ml-2">em {r.product?.name}</span>
                   </div>
                   <StarRating value={r.rating} />
                 </div>
-                <p className="text-ink/70 mt-1">{r.comment}</p>
+                {r.comment && <p className="text-ink/70 mt-1">{r.comment}</p>}
                 {r.edited && <span className="text-xs text-ink/40 italic">editado</span>}
                 <div className="flex gap-4 mt-2">
                   <button onClick={() => startEdit(r)} className="text-sage-dark hover:underline text-sm">Editar</button>

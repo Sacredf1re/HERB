@@ -3,7 +3,7 @@ services:
     name: wildroot-shop
     runtime: node
     plan: free
-    buildCommand: npm install && npx prisma db push && npm run build
+    buildCommand: npm install && npx prisma db push && node prisma/seed.js && npm run build
     startCommand: npm start
     envVars:
       - key: DATABASE_URL
