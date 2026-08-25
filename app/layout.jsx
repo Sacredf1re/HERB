@@ -18,13 +18,13 @@ const jost = Jost({
 });
 
 export const metadata = {
-  title: "Wildroot & Co. — Herbal goods, slowly made",
-  description: "Small-batch herbal teas, tinctures, salves, and oils."
+  title: "Wildroot & Co. — Produtos herbais, feitos com calma",
+  description: "Skincare, sono, cabelo e nutrição em pequenos lotes herbais."
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${jost.variable}`}>
+    <html lang="pt-BR" className={`${fraunces.variable} ${jost.variable}`}>
       <body>
         <Providers>
           <Navbar />

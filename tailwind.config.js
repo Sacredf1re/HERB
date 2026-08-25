@@ -11,20 +11,20 @@ module.exports = {
         cream: "#FBF6EF",
         paper: "#F3ECE0",
         sage: {
-          DEFAULT: "#4B5E45",
+          DEFAULT: "#465A40",
           light: "#E7ECDF",
-          dark: "#333F2E"
+          dark: "#2E3A2A"
         },
         clay: {
-          DEFAULT: "#C17F5C",
-          dark: "#A6633F"
+          DEFAULT: "#BE7A56",
+          dark: "#9C5F3D"
         },
         gold: {
-          DEFAULT: "#B8935F",
-          dark: "#96754A"
+          DEFAULT: "#B08A52",
+          dark: "#8F6E3E"
         },
         rose: "#D9A9A6",
-        ink: "#2B2A25"
+        ink: "#26251F"
       },
       fontFamily: {
         display: ["var(--font-fraunces)", "serif"],

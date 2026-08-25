@@ -11,8 +11,13 @@ export default function Navbar() {
   return (
     <header className="border-b border-sage-light/70 bg-cream/95 backdrop-blur sticky top-0 z-40">
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-display text-2xl text-sage-dark tracking-tight">
-          Wildroot <span className="text-clay">&amp;</span> Co.
+        <Link href="/" className="flex flex-col leading-none">
+          <span className="font-display text-2xl text-sage-dark tracking-tight">
+            Wildroot <span className="text-clay">&amp;</span> Co.
+          </span>
+          <span className="hidden sm:block text-[10px] uppercase tracking-[0.2em] text-gold-dark mt-0.5">
+            Luxo natural, ao seu alcance
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-ink/80">

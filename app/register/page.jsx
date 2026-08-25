@@ -25,7 +25,7 @@ export default function RegisterPage() {
     const data = await res.json();
     if (!res.ok) {
       setLoading(false);
-      setError(data.error || "Something went wrong.");
+      setError(data.error || "Algo deu errado.");
       return;
     }
     const signInRes = await signIn("credentials", { email, password, redirect: false });
@@ -40,18 +40,18 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-md px-6 py-20">
-      <h1 className="text-4xl mb-8">Create an account</h1>
+      <h1 className="text-4xl mb-8">Criar conta</h1>
       <form onSubmit={handleSubmit} className="card p-6 space-y-4">
         <div>
-          <label className="eyebrow block mb-2">Name</label>
+          <label className="eyebrow block mb-2">Nome</label>
           <input required className="input" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div>
-          <label className="eyebrow block mb-2">Email</label>
+          <label className="eyebrow block mb-2">E-mail</label>
           <input type="email" required className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
-          <label className="eyebrow block mb-2">Password</label>
+          <label className="eyebrow block mb-2">Senha</label>
           <input
             type="password"
             required
@@ -60,15 +60,15 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <p className="text-xs text-ink/40 mt-1">At least 8 characters.</p>
+          <p className="text-xs text-ink/40 mt-1">Pelo menos 8 caracteres.</p>
         </div>
         {error && <p className="text-sm text-clay-dark">{error}</p>}
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? "Creating account…" : "Create account"}
+          {loading ? "Criando conta…" : "Criar conta"}
         </button>
       </form>
       <p className="text-sm text-ink/60 mt-4">
-        Already have an account? <Link href="/login" className="text-clay-dark hover:underline">Sign in</Link>
+        Já tem conta? <Link href="/login" className="text-clay-dark hover:underline">Entrar</Link>
       </p>
     </div>
   );

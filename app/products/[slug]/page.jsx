@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatPrice } from "@/lib/money";
+import { formatPrice, formatInstallments } from "@/lib/money";
 import StarRating from "@/components/StarRating";
 import AddToCartButton from "@/components/AddToCartButton";
 import ReviewSection from "@/components/ReviewSection";
@@ -65,6 +65,7 @@ export default async function ProductPage({ params }) {
           </div>
 
           <p className="text-2xl price-tag mt-5">{formatPrice(product.price)}</p>
+          <p className="installment-text mt-1">{formatInstallments(product.price)}</p>
 
           <p className="text-ink/70 mt-5 leading-relaxed">{product.description}</p>
 
@@ -77,6 +78,12 @@ export default async function ProductPage({ params }) {
 
           <div className="mt-8">
             <AddToCartButton product={product} />
+          </div>
+
+          <div className="trust-row mt-6 pt-6 border-t border-sage-light/60">
+            <span className="trust-item">🔒 Compra 100% segura</span>
+            <span className="trust-item">📦 Envio para todo o Brasil</span>
+            <span className="trust-item">🌿 Produto genuíno, direto do fabricante</span>
           </div>
         </div>
       </div>

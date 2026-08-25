@@ -19,7 +19,7 @@ export default function LoginPage() {
     const res = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
     if (res?.error) {
-      setError("Wrong email or password.");
+      setError("E-mail ou senha incorretos.");
       return;
     }
     router.push("/");
@@ -28,26 +28,26 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md px-6 py-20">
-      <h1 className="text-4xl mb-8">Sign in</h1>
+      <h1 className="text-4xl mb-8">Entrar</h1>
       <form onSubmit={handleSubmit} className="card p-6 space-y-4">
         <div>
-          <label className="eyebrow block mb-2">Email</label>
+          <label className="eyebrow block mb-2">E-mail</label>
           <input type="email" required className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
-          <label className="eyebrow block mb-2">Password</label>
+          <label className="eyebrow block mb-2">Senha</label>
           <input type="password" required className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
         {error && <p className="text-sm text-clay-dark">{error}</p>}
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? "Signing in…" : "Sign in"}
+          {loading ? "Entrando…" : "Entrar"}
         </button>
       </form>
       <p className="text-sm text-ink/60 mt-4">
-        New here? <Link href="/register" className="text-clay-dark hover:underline">Create an account</Link>
+        Ainda não tem conta? <Link href="/register" className="text-clay-dark hover:underline">Criar conta</Link>
       </p>
       <p className="text-xs text-ink/40 mt-8">
-        Demo admin account: admin@wildroot.test / Admin123!
+        Conta admin de demonstração: admin@wildroot.test / Admin123!
       </p>
     </div>
   );

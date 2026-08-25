@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
-function CheckoutForm() {
+export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const { data: session } = useSession();
   const router = useRouter();
@@ -19,6 +19,8 @@ function CheckoutForm() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("PENDING");
+  const [cryptoFields, setCryptoFields] = useState([]);
 
   useEffect(() => {
     if (!couponCode) return;
@@ -29,13 +31,20 @@ function CheckoutForm() {
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d && setDiscount(d.discount));
-  }, [couponCode, subtotal]);
+  }, []);
+
+  useEffect(() => {
+    if (paymentMethod !== "CRYPTO" || cryptoFields.length) return;
+    fetch("/api/crypto-fields")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setCryptoFields);
+  }, [paymentMethod]);
 
   async function handlePlaceOrder(e) {
     e.preventDefault();
     setError("");
     if (!session && !email) {
-      setError("Enter an email so we can send your order details.");
+      setError("Informe um e-mail para enviarmos os detalhes do pedido.");
       return;
     }
     setPlacing(true);
@@ -45,13 +54,14 @@ function CheckoutForm() {
       body: JSON.stringify({
         items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         couponCode,
-        email
+        email,
+        paymentMethod
       })
     });
     const data = await res.json();
     setPlacing(false);
     if (!res.ok) {
-      setError(data.error || "Couldn't place the order.");
+      setError(data.error || "Não foi possível concluir o pedido.");
       return;
     }
     clearCart();
@@ -61,35 +71,77 @@ function CheckoutForm() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <h1 className="text-3xl mb-4">Nothing to check out</h1>
-        <p className="text-ink/60">Your cart is empty.</p>
+        <h1 className="text-3xl mb-4">Nada para finalizar</h1>
+        <p className="text-ink/60">Seu carrinho está vazio.</p>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-14">
-      <h1 className="text-4xl mb-2">Checkout</h1>
+      <h1 className="text-4xl mb-2">Finalizar compra</h1>
       <p className="text-ink/60 mb-8">
-        A payment gateway isn&apos;t connected yet — placing an order records it as{" "}
-        <strong>pending payment</strong> so you can wire up Stripe, PayPal, or another
-        provider later without changing this flow.
+        Ainda não conectamos um gateway tradicional — ao finalizar, o pedido fica
+        registrado como <strong>pagamento pendente</strong> até ser confirmado.
       </p>
 
       <form onSubmit={handlePlaceOrder} className="card p-6 space-y-5">
         {!session && (
           <div>
-            <label className="eyebrow block mb-2">Email</label>
+            <label className="eyebrow block mb-2">E-mail</label>
             <input
               type="email"
               required
               className="input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="voce@exemplo.com"
             />
           </div>
         )}
+
+        <div>
+          <label className="eyebrow block mb-2">Forma de pagamento</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("PENDING")}
+              className={`px-4 py-2 rounded-full text-sm ${
+                paymentMethod === "PENDING" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+              }`}
+            >
+              A combinar
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("CRYPTO")}
+              className={`px-4 py-2 rounded-full text-sm ${
+                paymentMethod === "CRYPTO" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+              }`}
+            >
+              Crypto
+            </button>
+          </div>
+
+          {paymentMethod === "CRYPTO" && (
+            <div className="mt-4 card p-4 bg-sage-light/40 space-y-2">
+              <p className="text-sm text-sage-dark font-medium">Envie o pagamento para:</p>
+              {cryptoFields.length === 0 ? (
+                <p className="text-sm text-ink/50">Nenhuma informação de pagamento cadastrada ainda.</p>
+              ) : (
+                cryptoFields.map((f) => (
+                  <div key={f.id} className="text-sm">
+                    <span className="text-ink/60">{f.label}: </span>
+                    <span className="font-mono break-all">{f.value}</span>
+                  </div>
+                ))
+              )}
+              <p className="text-xs text-ink/50 pt-2">
+                Depois de enviar, seu pedido fica pendente até confirmarmos o recebimento.
+              </p>
+            </div>
+          )}
+        </div>
 
         <div className="border-t border-sage-light/70 pt-4 space-y-1 text-sm">
           {items.map((i) => (
@@ -100,7 +152,7 @@ function CheckoutForm() {
           ))}
           {discount > 0 && (
             <div className="flex justify-between text-sage-dark">
-              <span>Discount ({couponCode})</span>
+              <span>Desconto ({couponCode})</span>
               <span>−{formatPrice(discount)}</span>
             </div>
           )}
@@ -113,17 +165,9 @@ function CheckoutForm() {
         {error && <p className="text-sm text-clay-dark">{error}</p>}
 
         <button type="submit" disabled={placing} className="btn-primary w-full">
-          {placing ? "Placing order…" : "Place order"}
+          {placing ? "Enviando pedido…" : "Confirmar pedido"}
         </button>
       </form>
     </div>
-  );
-}
-
-export default function CheckoutPage() {
-  return (
-    <Suspense fallback={<div className="mx-auto max-w-2xl px-6 py-14 text-center text-ink/60">Loading checkout...</div>}>
-      <CheckoutForm />
-    </Suspense>
   );
 }

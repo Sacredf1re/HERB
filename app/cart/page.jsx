@@ -17,15 +17,15 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <h1 className="text-3xl mb-4">Your cart is empty</h1>
-        <Link href="/products" className="btn-primary">Browse the shop</Link>
+        <h1 className="text-3xl mb-4">Seu carrinho está vazio</h1>
+        <Link href="/products" className="btn-primary">Ver a loja</Link>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-14">
-      <h1 className="text-4xl mb-8">Your cart</h1>
+      <h1 className="text-4xl mb-8">Seu carrinho</h1>
 
       <div className="space-y-5">
         {items.map((item) => (
@@ -37,7 +37,7 @@ export default function CartPage() {
               <Link href={`/products/${item.slug}`} className="font-display text-lg text-sage-dark hover:underline">
                 {item.name}
               </Link>
-              <p className="text-sm text-ink/60">{formatPrice(item.price)} each</p>
+              <p className="text-sm text-ink/60">{formatPrice(item.price)} cada</p>
             </div>
             <div className="flex items-center border border-sage-light rounded-full">
               <button onClick={() => updateQty(item.productId, item.qty - 1)} className="w-8 h-8">−</button>
@@ -46,7 +46,7 @@ export default function CartPage() {
             </div>
             <p className="w-20 text-right font-body">{formatPrice(item.price * item.qty)}</p>
             <button onClick={() => removeItem(item.productId)} className="text-ink/40 hover:text-clay-dark text-sm">
-              Remove
+              Remover
             </button>
           </div>
         ))}
@@ -58,7 +58,7 @@ export default function CartPage() {
         <div className="border-t border-sage-light/70 pt-4 space-y-1 text-sm">
           <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
           {discount > 0 && (
-            <div className="flex justify-between text-sage-dark"><span>Discount</span><span>−{formatPrice(discount)}</span></div>
+            <div className="flex justify-between text-sage-dark"><span>Desconto</span><span>−{formatPrice(discount)}</span></div>
           )}
           <div className="flex justify-between text-lg font-body pt-2"><span>Total</span><span>{formatPrice(total)}</span></div>
         </div>
@@ -67,7 +67,7 @@ export default function CartPage() {
           href={`/checkout${coupon ? `?coupon=${coupon.code}` : ""}`}
           className="btn-primary w-full"
         >
-          Checkout
+          Finalizar compra
         </Link>
       </div>
     </div>

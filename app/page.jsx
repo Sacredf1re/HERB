@@ -26,7 +26,7 @@ export default async function Home() {
     <div>
       <section className="mx-auto max-w-6xl px-6 pt-14 pb-6 grid md:grid-cols-2 gap-10 items-center">
         <div>
-          <p className="eyebrow mb-4">Pequenos lotes · herbal · sem pressa</p>
+          <p className="eyebrow mb-4">Pequenos lotes · qualidade real · sem exagero no preço</p>
           <h1 className="font-display text-5xl md:text-6xl leading-[1.05] italic text-sage-dark">
             Cultivado com calma,
             <br />
@@ -34,11 +34,16 @@ export default async function Home() {
           </h1>
           <p className="mt-6 text-ink/70 max-w-md">
             Skincare, sono, cabelo e nutrição feitos em pequenos lotes com ingredientes de verdade —
-            nada que você não consiga pronunciar.
+            o padrão de uma boutique, ao alcance do dia a dia.
           </p>
           <div className="mt-8 flex gap-4">
             <Link href="/products" className="btn-primary">Ver a coleção</Link>
             <Link href="/products?category=Skincare" className="btn-outline">Explorar skincare</Link>
+          </div>
+          <div className="trust-row mt-8">
+            <span className="trust-item">📦 Frete para todo o Brasil</span>
+            <span className="trust-item">💳 Em até 3x sem juros</span>
+            <span className="trust-item">🔒 Compra 100% segura</span>
           </div>
         </div>
         <div className="relative aspect-[4/5] rounded-organic overflow-hidden rotate-1 shadow-lg">

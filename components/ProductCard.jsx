@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { formatPrice } from "@/lib/money";
+import { formatPrice, formatInstallments } from "@/lib/money";
 import { categoryLabels } from "@/lib/categories";
 
 export default function ProductCard({ product, avgRating }) {
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <div className="card overflow-hidden">
+      <div className="card card-hover overflow-hidden">
         <div className="relative aspect-square overflow-hidden">
           <Image
             src={product.images?.[0] || "https://picsum.photos/seed/placeholder/900/900"}
@@ -24,6 +24,7 @@ export default function ProductCard({ product, avgRating }) {
             <span className="font-body text-ink price-tag">{formatPrice(product.price)}</span>
             {avgRating ? <span className="text-xs text-clay">★ {avgRating.toFixed(1)}</span> : null}
           </div>
+          <p className="installment-text mt-0.5">{formatInstallments(product.price)}</p>
         </div>
       </div>
     </Link>
