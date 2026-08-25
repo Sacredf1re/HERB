@@ -11,7 +11,8 @@ const statusLabels = {
 
 const paymentLabels = {
   PENDING: "não escolhido",
-  CRYPTO: "cripto"
+  CRYPTO: "cripto",
+  PIX: "Pix"
 };
 
 export default function AdminOrdersClient({ initialOrders }) {
