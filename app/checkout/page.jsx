@@ -19,8 +19,10 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState("PENDING");
+  const [paymentMethod, setPaymentMethod] = useState("PIX");
   const [cryptoFields, setCryptoFields] = useState([]);
+  const [payerName, setPayerName] = useState(session?.user?.name || "");
+  const [payerDocument, setPayerDocument] = useState("");
 
   useEffect(() => {
     if (!couponCode) return;
@@ -47,6 +49,10 @@ export default function CheckoutPage() {
       setError("Informe um e-mail para enviarmos os detalhes do pedido.");
       return;
     }
+    if (paymentMethod === "PIX" && (!payerName.trim() || !payerDocument.trim())) {
+      setError("Informe nome completo e CPF para pagar via PIX.");
+      return;
+    }
     setPlacing(true);
     const res = await fetch("/api/orders", {
       method: "POST",
@@ -55,7 +61,9 @@ export default function CheckoutPage() {
         items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         couponCode,
         email,
-        paymentMethod
+        paymentMethod,
+        payerName,
+        payerDocument
       })
     });
     const data = await res.json();
@@ -79,11 +87,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-14">
-      <h1 className="text-4xl mb-2">Finalizar compra</h1>
-      <p className="text-ink/60 mb-8">
-        Ainda não conectamos um gateway tradicional — ao finalizar, o pedido fica
-        registrado como <strong>pagamento pendente</strong> até ser confirmado.
-      </p>
+      <h1 className="text-4xl mb-8">Finalizar compra</h1>
 
       <form onSubmit={handlePlaceOrder} className="card p-6 space-y-5">
         {!session && (
@@ -102,15 +106,15 @@ export default function CheckoutPage() {
 
         <div>
           <label className="eyebrow block mb-2">Forma de pagamento</label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button
               type="button"
-              onClick={() => setPaymentMethod("PENDING")}
+              onClick={() => setPaymentMethod("PIX")}
               className={`px-4 py-2 rounded-full text-sm ${
-                paymentMethod === "PENDING" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+                paymentMethod === "PIX" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
               }`}
             >
-              A combinar
+              Pix
             </button>
             <button
               type="button"
@@ -121,7 +125,43 @@ export default function CheckoutPage() {
             >
               Crypto
             </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("PENDING")}
+              className={`px-4 py-2 rounded-full text-sm ${
+                paymentMethod === "PENDING" ? "bg-sage text-cream" : "bg-sage-light text-sage-dark"
+              }`}
+            >
+              A combinar
+            </button>
           </div>
+
+          {paymentMethod === "PIX" && (
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="eyebrow block mb-2">Nome completo</label>
+                <input
+                  className="input"
+                  value={payerName}
+                  onChange={(e) => setPayerName(e.target.value)}
+                  placeholder="Como está no CPF"
+                />
+              </div>
+              <div>
+                <label className="eyebrow block mb-2">CPF</label>
+                <input
+                  className="input"
+                  value={payerDocument}
+                  onChange={(e) => setPayerDocument(e.target.value)}
+                  placeholder="Somente números"
+                  inputMode="numeric"
+                />
+              </div>
+              <p className="text-xs text-ink/50">
+                Você vai ver o QR Code e o código copia-e-cola assim que confirmar o pedido.
+              </p>
+            </div>
+          )}
 
           {paymentMethod === "CRYPTO" && (
             <div className="mt-4 card p-4 bg-sage-light/40 space-y-2">
@@ -136,10 +176,13 @@ export default function CheckoutPage() {
                   </div>
                 ))
               )}
-              <p className="text-xs text-ink/50 pt-2">
-                Depois de enviar, seu pedido fica pendente até confirmarmos o recebimento.
-              </p>
             </div>
+          )}
+
+          {paymentMethod === "PENDING" && (
+            <p className="text-sm text-ink/60 mt-4">
+              O pedido fica registrado como pendente até combinarmos o pagamento com você.
+            </p>
           )}
         </div>
 
@@ -165,7 +208,7 @@ export default function CheckoutPage() {
         {error && <p className="text-sm text-clay-dark">{error}</p>}
 
         <button type="submit" disabled={placing} className="btn-primary w-full">
-          {placing ? "Enviando pedido…" : "Confirmar pedido"}
+          {placing ? "Processando…" : paymentMethod === "PIX" ? "Gerar QR Code Pix" : "Confirmar pedido"}
         </button>
       </form>
     </div>
