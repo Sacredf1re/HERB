@@ -1,25 +1,39 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/money";
 import StarRating from "@/components/StarRating";
 import AddToCartButton from "@/components/AddToCartButton";
 import ReviewSection from "@/components/ReviewSection";
 import SprigDivider from "@/components/SprigDivider";
+import { categoryLabels } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
 async function getProduct(slug) {
-  const product = await prisma.product.findUnique({
+  return prisma.product.findUnique({
     where: { slug },
     include: { reviews: { orderBy: { createdAt: "desc" } } }
   });
-  return product;
 }
 
 export default async function ProductPage({ params }) {
   const product = await getProduct(params.slug);
   if (!product || !product.active) notFound();
+
+  const session = await getServerSession(authOptions);
+
+  let canReview = false;
+  if (session?.user && session.user.role !== "ADMIN") {
+    const paidOrder = await prisma.order.findFirst({
+      where: { userId: session.user.id, status: "PAID", items: { some: { productId: product.id } } }
+    });
+    canReview = Boolean(paidOrder);
+  } else if (session?.user?.role === "ADMIN") {
+    canReview = true;
+  }
 
   const avgRating = product.reviews.length
     ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
@@ -32,31 +46,31 @@ export default async function ProductPage({ params }) {
           {(product.images.length ? product.images : ["https://picsum.photos/seed/placeholder/900/900"]).map(
             (src, i) => (
               <div key={i} className={`relative aspect-square rounded-xl overflow-hidden ${i === 0 ? "col-span-2" : ""}`}>
-                <Image src={src} alt={`${product.name} photo ${i + 1}`} fill className="object-cover" />
+                <Image src={src} alt={`Foto ${i + 1} de ${product.name}`} fill className="object-cover" />
               </div>
             )
           )}
         </div>
 
         <div>
-          <span className="tag-chip">{product.category}</span>
+          <span className="tag-chip">{categoryLabels[product.category] || product.category}</span>
           <h1 className="text-4xl mt-3">{product.name}</h1>
           {product.tagline && <p className="text-ink/60 italic mt-1">{product.tagline}</p>}
 
           <div className="flex items-center gap-2 mt-3">
-            <StarRating value={avgRating} />
+            <StarRating value={avgRating} showValue />
             <span className="text-sm text-ink/50">
-              {product.reviews.length} review{product.reviews.length === 1 ? "" : "s"}
+              {product.reviews.length} avaliaç{product.reviews.length === 1 ? "ão" : "ões"}
             </span>
           </div>
 
-          <p className="text-2xl font-body text-sage-dark mt-5">{formatPrice(product.price)}</p>
+          <p className="text-2xl price-tag mt-5">{formatPrice(product.price)}</p>
 
           <p className="text-ink/70 mt-5 leading-relaxed">{product.description}</p>
 
           {product.ingredients && (
             <div className="mt-5">
-              <p className="eyebrow mb-2">Ingredients</p>
+              <p className="eyebrow mb-2">Ingredientes</p>
               <p className="text-sm text-ink/60">{product.ingredients}</p>
             </div>
           )}
@@ -70,8 +84,13 @@ export default async function ProductPage({ params }) {
       <SprigDivider />
 
       <div className="max-w-2xl">
-        <h2 className="text-3xl mb-6">Reviews</h2>
-        <ReviewSection productId={product.id} initialReviews={product.reviews} />
+        <h2 className="text-3xl mb-6">Avaliações</h2>
+        <ReviewSection
+          productId={product.id}
+          initialReviews={product.reviews}
+          isSignedIn={Boolean(session)}
+          canReview={canReview}
+        />
       </div>
     </div>
   );
