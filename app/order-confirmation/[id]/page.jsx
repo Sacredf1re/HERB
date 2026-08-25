@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/money";
+import PixPaymentPanel from "@/components/PixPaymentPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -11,14 +12,17 @@ export default async function OrderConfirmationPage({ params }) {
   });
   if (!order) notFound();
 
+  const isPix = order.paymentMethod === "PIX";
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-20 text-center">
       <p className="eyebrow mb-3">Pedido recebido</p>
       <h1 className="text-4xl mb-4">Obrigado.</h1>
       <p className="text-ink/60 mb-10">
-        O pedido <span className="font-mono">{order.id}</span> está registrado como{" "}
-        <strong>pagamento pendente</strong> — entraremos em contato em {order.email} assim
-        que um meio de pagamento estiver conectado.
+        O pedido <span className="font-mono">{order.id}</span>{" "}
+        {isPix
+          ? "está aguardando a confirmação do Pix abaixo."
+          : "está registrado como pagamento pendente — entraremos em contato em " + order.email + "."}
       </p>
 
       <div className="card p-6 text-left space-y-2">
@@ -33,6 +37,15 @@ export default async function OrderConfirmationPage({ params }) {
           <span>{formatPrice(order.total)}</span>
         </div>
       </div>
+
+      {isPix && (
+        <PixPaymentPanel
+          orderId={order.id}
+          qrCode={order.pixQrCode}
+          copyPaste={order.pixCopyPaste}
+          initialStatus={order.status}
+        />
+      )}
     </div>
   );
 }
