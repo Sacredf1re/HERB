@@ -13,6 +13,8 @@ export default function ReviewSection({ productId, initialReviews, isSignedIn, c
   const [submitting, setSubmitting] = useState(false);
 
   const visibleReviews = reviews.filter((r) => r.comment);
+  const totalCount = reviews.length;
+  const avgRating = totalCount ? reviews.reduce((s, r) => s + r.rating, 0) / totalCount : 0;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -39,8 +41,22 @@ export default function ReviewSection({ productId, initialReviews, isSignedIn, c
 
   return (
     <div>
+      {totalCount > 0 && (
+        <div className="flex items-center gap-2 mb-6">
+          <StarRating value={avgRating} showValue size="text-base" />
+          <span className="text-sm text-ink/50">
+            baseado em {totalCount} avaliaç{totalCount === 1 ? "ão" : "ões"}
+          </span>
+        </div>
+      )}
+
       <div className="space-y-6 mb-10">
-        {visibleReviews.length === 0 && <p className="text-ink/60">Ainda não há avaliações — seja o primeiro.</p>}
+        {totalCount === 0 && <p className="text-ink/60">Ainda não há avaliações — seja o primeiro.</p>}
+        {totalCount > 0 && visibleReviews.length === 0 && (
+          <p className="text-ink/60">
+            Nenhum comentário escrito ainda — as {totalCount} avaliações acima ainda não vieram com texto.
+          </p>
+        )}
         {visibleReviews.map((r) => (
           <div key={r.id} className="border-b border-sage-light/60 pb-5">
             <div className="flex items-center justify-between">
