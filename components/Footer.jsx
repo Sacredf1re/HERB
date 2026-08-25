@@ -1,4 +1,4 @@
-import { categories } from "@/lib/categories";
+import { storefrontCategories } from "@/lib/categories";
 
 const institutional = [
   { href: "/sobre", label: "Quem Somos" },
@@ -22,7 +22,7 @@ export default function Footer() {
           <div className="eyebrow mb-3">Loja</div>
           <ul className="space-y-1">
             <li><a href="/products" className="hover:text-sage-dark">Todos os produtos</a></li>
-            {categories.map((c) => (
+            {storefrontCategories.map((c) => (
               <li key={c.value}>
                 <a href={`/products?category=${encodeURIComponent(c.value)}`} className="hover:text-sage-dark">
                   {c.label}
